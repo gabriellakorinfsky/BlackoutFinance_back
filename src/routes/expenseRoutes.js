@@ -1,17 +1,11 @@
 import express from "express";
-import { Expense } from "../models/expense.js";
+import expenseController from "../controllers/expenseController.js";
 const router = express.Router();
 
 // Rota para adicionar despesa
-router.post('/addExpense', async (req, res) => {
-    const { value, category, description } = req.body;
+router.post('/', expenseController.createExpense);
 
-    try {
-        const newExpense = await Expense.create({ value, category, description });
-        res.status(201).json({ message: 'Despesa registrada com sucesso!', newExpense });
-    } catch (error) {
-        res.status(500).json({ message: 'Erro ao registrar despesa.', error });
-    }
-});
+// Rota para obter todas as postagens
+router.get('/', expenseController.getAllExpenses);
 
-export default router;
+module.exports = router;

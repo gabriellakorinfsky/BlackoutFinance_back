@@ -1,17 +1,11 @@
 import express from "express";
-import { Income } from "../models/income.js";
+import incomeController from "../controllers/incomeController.js";
 const router = express.Router();
 
-// Rota para adicionar despesa
-router.post('/addIncome', async (req, res) => {
-    const { value, category, description } = req.body;
+// Rota para adicionar entrada
+router.post('/', incomeController.createIncome);
 
-    try {
-        const newIncome = await Income.create({ value, category, description });
-        res.status(201).json({ message: 'Entrada registrada com sucesso!', newExpense });
-    } catch (error) {
-        res.status(500).json({ message: 'Erro ao registrar entrada.', error });
-    }
-});
+// Rota para obter todas as postagens
+router.get('/', incomeController.getAllIncomes);
 
-export default router;
+module.exports = router;
