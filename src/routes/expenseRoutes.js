@@ -1,11 +1,11 @@
 import express from "express";
-import expenseController from "../controllers/expenseController.js";
+import { createExpense, getAllExpenses } from "../controllers/expenseController.js";
 const router = express.Router();
 
 // Rota para adicionar despesa
-router.post('/', expenseController.createExpense);
+router.post('/', createExpense);
 
 // Rota para obter todas as postagens
-router.get('/', expenseController.getAllExpenses);
+router.get('/', getAllExpenses);
 
-module.exports = router;
+export default router;

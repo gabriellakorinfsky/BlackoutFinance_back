@@ -1,7 +1,7 @@
 import { Income } from "../models/income.js";
 
 // Rota para adicionar entrada
-exports.createIncome = async (req, res) => {
+export async function createIncome (req, res) {
     const { value, category, description } = req.body;
 
     try {
@@ -13,7 +13,7 @@ exports.createIncome = async (req, res) => {
 };
 
 // Buscar todas as entradas
-exports.getAllIncomes = async (req, res) => {
+export async function getAllIncomes (req, res) {
     try {
         const incomes = await Income.findAll();
         res.status(200).json(incomes);
@@ -21,3 +21,4 @@ exports.getAllIncomes = async (req, res) => {
         res.status(500).json({ message: 'Erro ao buscar despesas', error });
     }
 };
+

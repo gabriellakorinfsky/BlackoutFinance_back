@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
 // Função para Cadastro
-exports.register = async (req, res) => {
+export async function register (req, res) {
     const { name, dateOfBirth, phoneNumber, email, password } = req.body;
 
     try{
@@ -25,7 +25,7 @@ exports.register = async (req, res) => {
 };
 
 // Função para login
-exports.login = async (req, res) => {
+export async function login (req, res) {
     const { email, password } = req.body;
     try{
         //  Verificar se usuário está no banco de dados

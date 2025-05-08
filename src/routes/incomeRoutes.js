@@ -1,11 +1,11 @@
 import express from "express";
-import incomeController from "../controllers/incomeController.js";
+import { createIncome, getAllIncomes } from "../controllers/incomeController.js";
 const router = express.Router();
 
 // Rota para adicionar entrada
-router.post('/', incomeController.createIncome);
+router.post('/', createIncome);
 
 // Rota para obter todas as postagens
-router.get('/', incomeController.getAllIncomes);
+router.get('/', getAllIncomes);
 
-module.exports = router;
+export default router;

@@ -1,7 +1,7 @@
 import { Expense } from "../models/expense.js";
 
 // Rota para adicionar despesa
-exports.createExpense = async (req, res) => {
+export async function createExpense (req, res) {
     const { value, category, description } = req.body;
 
     try {
@@ -13,7 +13,7 @@ exports.createExpense = async (req, res) => {
 };
 
 // Buscar todas as despesas
-exports.getAllExpenses = async (req, res) => {
+export async function getAllExpenses (req, res) {
     try {
         const expenses = await Expense.findAll();
         res.status(200).json(expenses);
