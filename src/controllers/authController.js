@@ -26,6 +26,8 @@ export async function register (req, res) {
 
 // Função para login
 export async function login (req, res) {
+    console.log(req.body);
+
     const { email, password } = req.body;
     try{
         //  Verificar se usuário está no banco de dados
@@ -39,6 +41,6 @@ export async function login (req, res) {
         const token = jwt.sign({ userId: user.id }, 'secret_key', { expiresIn: '2h' });
         res.status(200).json({ message: 'Login bem-sucedido!', token });
     } catch (error) {
-        res.status(500).json({ message: 'Erro no login', error});
+        res.status(500).json({ message: 'Erro no login', error: error.message});
     }
 };
