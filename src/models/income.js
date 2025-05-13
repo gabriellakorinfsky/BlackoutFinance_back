@@ -25,7 +25,7 @@ const Income = sequelize.define("Income", {
         type: DataTypes.TEXT,
         allowNull: true
     },
-    date: { 
+    data: { 
         type: DataTypes.DATE, 
         allowNull: false
     }
