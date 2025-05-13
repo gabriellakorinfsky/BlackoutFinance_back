@@ -1,8 +1,11 @@
 import { Expense } from "../models/expense.js";
+import { Income } from "../models/income.js";
+import { Op } from 'sequelize';
+
 
 // Rota para adicionar despesa
 export async function createExpense (req, res) {
-    const { value, category, description, data } = req.body;
+    const { value, category, description, data} = req.body;
     const userId = req.userId;
 
     // Verifica se o userId existe
@@ -10,7 +13,26 @@ export async function createExpense (req, res) {
         return res.status(400).json({ message: 'Usuário não autenticado.' });
     }
     try {
-        const newExpense = await Expense.create({ value, category, description, data, user_Id: userId});
+       // Calcular total de entradas
+        const totalIncome = await Income.sum('value', { where: { user_Id: userId } }) || 0;
+        console.log('Total de entradas:', totalIncome);  // Log para depuração
+
+        // Calcular total de despesas
+        const totalExpense = await Expense.sum('value', { where: { user_Id: userId } }) || 0;
+        console.log('Total de despesas:', totalExpense);
+
+        // Calcular saldo atual
+        const saldoAtual = totalIncome - totalExpense;
+        console.log('Saldo atual disponível:', saldoAtual);  // Log para depuração
+
+        // Verificar se há saldo suficiente
+        if (value > saldoAtual) {
+            return res.status(400).json({ message: 'Saldo insuficiente para essa despesa.' });
+        }
+
+        // Se saldo suficiente, cria a despesa
+        const newExpense = await Expense.create({ value, category, description, data, user_Id: userId });
+        
         res.status(201).json({ message: 'Despesa registrada com sucesso!', newExpense });
     } catch (error) {
         console.error('Erro ao criar despesa:', error);
@@ -44,22 +66,33 @@ export async function updateExpense(req, res) {
     const userId = req.userId;  // ID do usuário autenticado
 
     try {
-        // Encontrar a despesa com o ID fornecido
-        const newExpense = await Expense.findOne({ where: { id: expenseId, user_Id: userId } });
+        // Busca a despesa do usuário
+        const existingExpense = await Expense.findOne({ where: { id: expenseId, user_Id: userId } });
 
-        if (!newExpense) {
+        if (!existingExpense) {
             return res.status(404).json({ message: 'Despesa não encontrada ou você não tem permissão para alterá-la.' });
         }
 
-        // Atualizar a despesa
-        newExpense.value = value;
-        newExpense.category = category;
-        newExpense.description = description;
-        newExpense.data = data;
+        // Soma entradas e outras despesas (exceto a atual)
+        const totalIncome = await Income.sum('value', { where: { user_Id: userId } }) || 0;
+        const totalOtherExpenses = await Expense.sum('value', { where: { user_Id: userId, id: { [Op.ne]: expenseId } } }) || 0;
+        // id: { [Op.ne]: expenseId } ignora a que está sendo atualizada
+        const saldoAtual = totalIncome - totalOtherExpenses;
 
-        await newExpense.save();  // Salvar as alterações no banco de dados
+        if (value > saldoAtual) {
+            return res.status(400).json({ message: 'Saldo insuficiente para atualizar esta despesa.' });
+        }
 
-        res.status(200).json({ message: 'Despesa atualizada com sucesso!', newExpense });
+        // Atualiza a despesa
+        existingExpense.value = value;
+        existingExpense.category = category;
+        existingExpense.description = description;
+        existingExpense.data = data;
+
+        await existingExpense.save();
+
+        res.status(200).json({ message: 'Despesa atualizada com sucesso!', newExpense: existingExpense });
+
     } catch (error) {
         console.error('Erro ao atualizar despesa:', error);
         res.status(500).json({ message: 'Erro ao atualizar despesa.', error: error.message });
@@ -81,6 +114,14 @@ export async function deleteExpense(req, res) {
 
         // Deletar a despesa
         await newExpense.destroy();
+
+         // Verificar se ainda há despesas na tabela
+        const remaining = await Expense.count();
+
+        if (remaining === 0) {
+            // Resetar a sequência de IDs
+            await sequelize.query(`ALTER SEQUENCE "Expenses_id_seq" RESTART WITH 1;`);
+        }
 
         res.status(200).json({ message: 'Despesa excluída com sucesso!' });
     } catch (error) {

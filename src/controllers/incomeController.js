@@ -1,4 +1,5 @@
 import { Income } from "../models/income.js";
+import { Expense } from '../models/expense.js';
 
 // Rota para adicionar entrada
 export async function createIncome (req, res) {
@@ -48,9 +49,16 @@ export async function updateIncome(req, res) {
         const newIncome = await Income.findOne({ where: { id: incomeId, user_Id: userId } });
 
         if (!newIncome) {
-            return res.status(404).json({ message: 'Entrada não encontrada ou você não tem permissão para alterá-la.' });
+            return res.status(404).json({ message: 'Entrada não encontrada.' });
         }
 
+        // Verificar quanto já foi gasto dessa entrada
+        const totalExpense = await Expense.sum('value', { where: { income_Id: incomeId } }) || 0;
+
+        // Se tentar diminuir o valor para menos do que já foi gasto
+        if (value < totalExpense) {
+            return res.status(400).json({message: `Não é possível atualizar. Já foram gastos R$ ${totalExpense} com esta entrada.`,});
+        }
         // Atualizar a entrada
         newIncome.value = value;
         newIncome.category = category;
@@ -68,23 +76,31 @@ export async function updateIncome(req, res) {
 
 // Função para excluir uma entrada
 export async function deleteIncome(req, res) {
-    const incomeId = req.params.id;  // O ID da entrada que queremos excluir
     const userId = req.userId;  // ID do usuário autenticado
 
     try {
-        // Encontrar a entrada
-        const newIncome = await Income.findOne({ where: { id: incomeId, user_Id: userId } });
+        // Buscar a entrada pelo ID e verificar se pertence ao usuário
+        const newIncome = await Income.findOne({ where: { user_Id: userId } });
 
         if (!newIncome) {
-            return res.status(404).json({ message: 'Entrada não encontrada ou você não tem permissão para excluí-la.' });
+            return res.status(404).json({ message: 'Entrada não encontrada.' });
         }
 
-        // Deletar a entrada
+        // Excluir a entrada
         await newIncome.destroy();
+
+         // Verificar se ainda há despesas na tabela
+        const remaining = await Income.count();
+
+        if (remaining === 0) {
+            // Resetar a sequência de IDs
+            await sequelize.query(`ALTER SEQUENCE "Incomes_id_seq" RESTART WITH 1;`);
+        }
 
         res.status(200).json({ message: 'Entrada excluída com sucesso!' });
     } catch (error) {
         console.error('Erro ao excluir entrada:', error);
         res.status(500).json({ message: 'Erro ao excluir entrada.', error: error.message });
     }
+    
 };

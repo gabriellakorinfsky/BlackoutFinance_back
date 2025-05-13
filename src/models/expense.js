@@ -29,6 +29,7 @@ const Expense = sequelize.define("Expense", {
         type: DataTypes.DATE,
         allowNull: false
     }
+    
 });
 
 Expense.belongsTo(User, { foreignKey: 'user_Id'}); // Um gasto pertence a um usuário
