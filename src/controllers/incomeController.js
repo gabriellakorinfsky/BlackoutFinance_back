@@ -1,18 +1,26 @@
 import { Income } from "../models/income.js";
-import { Expense } from '../models/expense.js';
+import { calculateTotals } from "./financeController.js";
+import { sequelize } from "../config/database.js";
+import { Op } from 'sequelize';
 
-// Rota para adicionar entrada
+// Função para adicionar entrada
 export async function createIncome (req, res) {
     const { value, category, description, data } = req.body;
     const userId = req.userId;
 
-     // Verifica se o userId existe
+    // Verifica se o usuario existe
     if (!userId) {
         return res.status(400).json({ message: 'Usuário não autenticado.' });
     }
+
     try {
+        // Cria nova entrada de renda associada ao usuário
         const newIncome = await Income.create({ value, category, description, data, user_Id: userId});
-        res.status(201).json({ message: 'Entrada registrada com sucesso!', newIncome });
+
+        // Atualiza os totais após criação
+        const updateTotal = await calculateTotals(userId);
+        
+        res.status(201).json({ message: 'Entrada registrada com sucesso!', newIncome, totals: updateTotal });
     } catch (error) {
         console.error('Erro ao criar entrada:', error);
         res.status(500).json({ message: 'Erro ao registrar entrada.', error: error.message });
@@ -21,10 +29,10 @@ export async function createIncome (req, res) {
 
 // Função para listar todas as entradas de um usuário
 export async function getAllIncomes(req, res) {
-    const userId = req.userId;  // Recuperando o ID do usuário do middleware de autenticação
+    const userId = req.userId;  
 
     try {
-        // Buscar todas as entradas associadas ao userId
+        // Buscar todas as entradas associadas ao usuário
         const newIncome = await Income.findAll({ where: { user_Id: userId } });
         
         if (!newIncome || newIncome.length === 0) {
@@ -41,33 +49,42 @@ export async function getAllIncomes(req, res) {
 // Função para atualizar uma entrada existente
 export async function updateIncome(req, res) {
     const { value, category, description, data } = req.body;
-    const incomeId = req.params.id;  // O ID da entrada que queremos atualizar
-    const userId = req.userId;  // ID do usuário autenticado
+    const incomeId = req.params.id;  
+    const userId = req.userId;  
 
     try {
-        // Encontrar a entrada com o ID fornecido
+        // Busca a entrada que será atualizada e valida se pertence ao usuário
         const newIncome = await Income.findOne({ where: { id: incomeId, user_Id: userId } });
 
         if (!newIncome) {
             return res.status(404).json({ message: 'Entrada não encontrada.' });
         }
 
-        // Verificar quanto já foi gasto dessa entrada
-        const totalExpense = await Expense.sum('value', { where: { income_Id: incomeId } }) || 0;
+        // Obtém o total de despesas
+        const { totalExpenses } = await calculateTotals(userId);
 
-        // Se tentar diminuir o valor para menos do que já foi gasto
-        if (value < totalExpense) {
-            return res.status(400).json({message: `Não é possível atualizar. Já foram gastos R$ ${totalExpense} com esta entrada.`,});
+        // Soma todas as outras entradas, exceto a atual
+        const otherIncomes = await Income.sum('value', {where: {user_Id: userId, id: { [Op.ne]: incomeId }} }) || 0;
+
+        // Novo total de entradas após atualização
+        const saldoAtual = otherIncomes + value;
+
+        // Verifica se o novo total de entradas cobre as despesas
+        if (saldoAtual < totalExpenses) {
+            return res.status(400).json({message: 'Novo valor da entrada deixaria o saldo insuficiente para cobrir as despesas.'});
         }
+
         // Atualizar a entrada
         newIncome.value = value;
         newIncome.category = category;
         newIncome.description = description;
         newIncome.data = data;
 
-        await newIncome.save();  // Salvar as alterações no banco de dados
+        await newIncome.save(); 
 
-        res.status(200).json({ message: 'Entrada atualizada com sucesso!', newIncome });
+        const updateTotal = await calculateTotals(userId);
+
+        res.status(200).json({ message: 'Entrada atualizada com sucesso!', newIncome, totals: updateTotal });
     } catch (error) {
         console.error('Erro ao atualizar entrada:', error);
         res.status(500).json({ message: 'Erro ao atualizar entrada.', error: error.message });
@@ -76,28 +93,39 @@ export async function updateIncome(req, res) {
 
 // Função para excluir uma entrada
 export async function deleteIncome(req, res) {
-    const userId = req.userId;  // ID do usuário autenticado
-
+    const userId = req.userId;  
+    const incomeId = req.params.id;
     try {
-        // Buscar a entrada pelo ID e verificar se pertence ao usuário
-        const newIncome = await Income.findOne({ where: { user_Id: userId } });
+        // Verifica se a entrada existe e pertence ao usuário
+        const newIncome = await Income.findOne({ where: { id: incomeId, user_Id: userId } });
 
         if (!newIncome) {
             return res.status(404).json({ message: 'Entrada não encontrada.' });
         }
 
-        // Excluir a entrada
-        await newIncome.destroy();
+        // Obtém os totais antes da exclusão
+        const { totalExpenses } = await calculateTotals(userId);
 
-         // Verificar se ainda há despesas na tabela
-        const remaining = await Income.count();
+        const otherIncomes = await Income.sum('value', {where: {user_Id: userId, id: { [Op.ne]: incomeId }} }) || 0;
+
+        // Verificar se após excluir ainda haverá saldo suficiente
+        if (otherIncomes < totalExpenses) {
+            return res.status(400).json({message: 'Excluir esta entrada deixaria o saldo insuficiente para cobrir as despesas.'});
+        }
+
+        // Excluir a entrada
+        await newIncome.destroy({ where: { id: incomeId } });
+
+        const updateTotal = await calculateTotals(userId);
+
+        // Se não houver mais entradas, reinicia a sequência de IDs no banco de dados
+        const remaining = await Income.count({ where: { user_Id: userId } });
 
         if (remaining === 0) {
-            // Resetar a sequência de IDs
             await sequelize.query(`ALTER SEQUENCE "Incomes_id_seq" RESTART WITH 1;`);
         }
 
-        res.status(200).json({ message: 'Entrada excluída com sucesso!' });
+        res.status(200).json({ message: 'Entrada excluída com sucesso!', totals: updateTotal });
     } catch (error) {
         console.error('Erro ao excluir entrada:', error);
         res.status(500).json({ message: 'Erro ao excluir entrada.', error: error.message });

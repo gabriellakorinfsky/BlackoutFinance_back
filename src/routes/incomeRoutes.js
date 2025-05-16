@@ -3,10 +3,10 @@ import { createIncome, getAllIncomes, updateIncome, deleteIncome } from "../cont
 import { authenticate } from '../middleware/authMiddleware.js';
 const router = express.Router();
 
-// Rota para adicionar entrada
+// Rota para adicionar uma entrada
 router.post('/create', authenticate, createIncome);
 
-// Rota para obter todas as postagens
+// Rota para obter todas as entradas
 router.get('/', authenticate, getAllIncomes);
 
 // Rota para atualizar uma entrada
