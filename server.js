@@ -30,9 +30,8 @@ const startServer = async () => {
     await sequelize.sync(); 
     console.log("Banco de dados sincronizado!");
 
-    const PORT = 5000; 
-    app.listen(PORT, () => {
-      console.log(`Servidor rodando na porta ${PORT}`);
+    app.listen(5000, () => {
+      console.log(`Servidor rodando na porta 5000`);
     });
   } catch (error) {
     console.error("Erro ao conectar ao banco de dados:", error);
