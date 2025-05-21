@@ -40,10 +40,6 @@ export async function getAllExpenses(req, res) {
     try {
         // Buscar todas as despesas associadas ao usuario
         const newExpense = await Expense.findAll({ where: { user_Id: userId } });
-        
-        if (!newExpense || newExpense.length === 0) {
-            return res.status(404).json({ message: 'Nenhuma despesa encontrada.' });
-        }
 
         res.status(200).json({ newExpense });
     } catch (error) {

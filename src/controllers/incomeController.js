@@ -34,10 +34,6 @@ export async function getAllIncomes(req, res) {
     try {
         // Buscar todas as entradas associadas ao usuário
         const newIncome = await Income.findAll({ where: { user_Id: userId } });
-        
-        if (!newIncome || newIncome.length === 0) {
-            return res.status(404).json({ message: 'Nenhuma entrada encontrada.' });
-        }
 
         res.status(200).json({ newIncome });
     } catch (error) {
