@@ -10,7 +10,10 @@ import cors from "cors";
 const app = express();
 
 // Middleware para permitir requisições de diferentes origens (CORS) e interpretar JSON
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5173', // testar no front-end local
+  credentials: true }));
+
 app.use(express.json());
 
 // Registro das rotas da API
