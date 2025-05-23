@@ -40,7 +40,7 @@ export async function login (req, res) {
         // Gera token JWT com ID do usuário e validade de 2h
         const token = jwt.sign({ userId: user.id }, 'secret_key', { expiresIn: '2h' });
         
-        res.status(200).json({ message: 'Login bem-sucedido!', token });
+        res.status(200).json({ message: 'Login bem-sucedido!', token, email });
     } catch (error) {
         res.status(500).json({ message: 'Erro no login', error: error.message});
     }
