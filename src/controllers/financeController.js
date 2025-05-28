@@ -27,7 +27,6 @@ export async function financeTotals(req, res) {
         // Retorna os totais como resposta
         res.status(200).json(totals);
     } catch (error) {
-        console.error('Erro ao obter totais financeiros:', error);
         res.status(500).json({ message: 'Erro ao obter totais.', error: error.message });
     }
 };

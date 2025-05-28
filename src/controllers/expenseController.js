@@ -43,7 +43,6 @@ export async function getAllExpenses(req, res) {
 
         res.status(200).json({ newExpense });
     } catch (error) {
-        console.error('Erro ao listar despesas:', error);
         res.status(500).json({ message: 'Erro ao listar despesas.', error: error.message });
     }
 };
@@ -86,7 +85,6 @@ export async function updateExpense(req, res) {
         res.status(200).json({ message: 'Despesa atualizada com sucesso!', newExpense: existingExpense, totals: updateTotal });
 
     } catch (error) {
-        console.error('Erro ao atualizar despesa:', error);
         res.status(500).json({ message: 'Erro ao atualizar despesa.', error: error.message });
     }
 };
@@ -120,7 +118,6 @@ export async function deleteExpense(req, res) {
 
         res.status(200).json({ message: 'Despesa excluída com sucesso!', totals: updateTotal});
     } catch (error) {
-        console.error('Erro ao excluir despesa:', error);
         res.status(500).json({ message: 'Erro ao excluir despesa.', error: error.message });
     }
 };

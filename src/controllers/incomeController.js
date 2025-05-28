@@ -22,7 +22,6 @@ export async function createIncome (req, res) {
         
         res.status(201).json({ message: 'Entrada registrada com sucesso!', newIncome, totals: updateTotal });
     } catch (error) {
-        console.error('Erro ao criar entrada:', error);
         res.status(500).json({ message: 'Erro ao registrar entrada.', error: error.message });
     }
 };
@@ -37,7 +36,6 @@ export async function getAllIncomes(req, res) {
 
         res.status(200).json({ newIncome });
     } catch (error) {
-        console.error('Erro ao listar entradas:', error);
         res.status(500).json({ message: 'Erro ao listar entradas.', error: error.message });
     }
 };
@@ -82,7 +80,6 @@ export async function updateIncome(req, res) {
 
         res.status(200).json({ message: 'Entrada atualizada com sucesso!', newIncome, totals: updateTotal });
     } catch (error) {
-        console.error('Erro ao atualizar entrada:', error);
         res.status(500).json({ message: 'Erro ao atualizar entrada.', error: error.message });
     }
 };
@@ -123,7 +120,6 @@ export async function deleteIncome(req, res) {
 
         res.status(200).json({ message: 'Entrada excluída com sucesso!', totals: updateTotal });
     } catch (error) {
-        console.error('Erro ao excluir entrada:', error);
         res.status(500).json({ message: 'Erro ao excluir entrada.', error: error.message });
     }
     
