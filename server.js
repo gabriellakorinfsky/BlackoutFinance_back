@@ -1,8 +1,5 @@
 import { sequelize } from "./src/config/database.js";
-import authRoutes from "./src/routes/authRoutes.js";
-import expenseRoutes from "./src/routes/expenseRoutes.js";
-import incomeRoutes from "./src/routes/incomeRoutes.js";
-import financeRoutes from "./src/routes/financeRoutes.js";
+import app from "./app.js";
 
 import express from "express";
 import cors from "cors";
@@ -13,14 +10,6 @@ const app = express();
 app.use(cors({
   origin: 'https://blackout-finance-ui.vercel.app', // link do front
   credentials: true }));
-
-app.use(express.json());
-
-// Registro das rotas da API
-app.use("/api/auth", authRoutes);
-app.use("/api/expense", expenseRoutes);
-app.use("/api/income", incomeRoutes);
-app.use("/api/finance", financeRoutes);
 
 // Função para iniciar a conexão com o banco e subir o servidor
 const startServer = async () => {
