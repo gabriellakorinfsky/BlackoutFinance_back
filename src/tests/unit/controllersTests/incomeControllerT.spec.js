@@ -1,11 +1,11 @@
-import { createIncome, getAllIncomes, updateIncome, deleteIncome } from '../../controllers/incomeController.js';
-import { Income } from '../../models/income.js'; // modelo Expense
-import { calculateTotals } from '../../controllers/financeController.js'; // ou onde estiver sua função calculateTotals
+import { createIncome, getAllIncomes, updateIncome, deleteIncome } from '../../../controllers/incomeController.js';
+import { Income } from '../../../models/income.js'; // modelo Expense
+import { calculateTotals } from '../../../controllers/financeController.js'; // ou onde estiver sua função calculateTotals
 import { Op } from 'sequelize';
-import { sequelize } from '../../config/database.js';
+import { sequelize } from '../../../config/database.js';
 
 // Mock das funções que vão ser usadas internamente
-jest.mock('../../models/expense.js', () => {
+jest.mock('../../../models/expense.js', () => {
     const mockExpense = {
         create: jest.fn(),
         findAll: jest.fn(),
@@ -20,7 +20,7 @@ jest.mock('../../models/expense.js', () => {
     return { Expense: mockExpense };
 });
 // Mock do Income
-jest.mock('../../models/Income.js', () => {
+jest.mock('../../../models/Income.js', () => {
     const mockIncome = {
         findAll: jest.fn(),
         findOne: jest.fn(),
@@ -31,9 +31,9 @@ jest.mock('../../models/Income.js', () => {
     };
     return { Income: mockIncome };
 });
-jest.mock('../../controllers/financeController.js');
-jest.mock('../../config/database.js');
-jest.mock('../../models/user.js', () => ({
+jest.mock('../../../controllers/financeController.js');
+jest.mock('../../../config/database.js');
+jest.mock('../../../models/user.js', () => ({
     User: {}
 }));
 

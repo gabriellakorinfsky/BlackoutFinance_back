@@ -3,17 +3,17 @@
 // Expect - asserções do resultado - validar resultados
 
 //Import para Teste do register
-import { register } from '../../controllers/authController.js';
+import { register } from '../../../controllers/authController.js';
 //Import para Teste do login
-import { login } from '../../controllers/authController.js';
+import { login } from '../../../controllers/authController.js';
 import jwt from 'jsonwebtoken';
 
 //Import para testes pros 2
-import { User } from '../../models/user.js';
+import { User } from '../../../models/user.js';
 import bcrypt from 'bcrypt';
 
 // Mock dos métodos usados
-jest.mock('../../models/user.js');
+jest.mock('../../../models/user.js');
 jest.mock('bcrypt');
 jest.mock('jsonwebtoken');
 

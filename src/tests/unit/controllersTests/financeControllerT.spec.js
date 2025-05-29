@@ -1,10 +1,10 @@
-import { calculateTotals, financeTotals } from "../../controllers/financeController.js";
-import { Income } from "../../models/income";
-import { Expense } from "../../models/expense.js";
+import { calculateTotals, financeTotals } from "../../../controllers/financeController.js";
+import { Income } from "../../../models/income";
+import { Expense } from "../../../models/expense.js";
 
 // Mock das funções do Sequelize sum
-jest.mock('../../models/income.js');
-jest.mock('../../models/expense.js');
+jest.mock('../../../models/income.js');
+jest.mock('../../../models/expense.js');
 
 
 describe('calculateTotals', () => {

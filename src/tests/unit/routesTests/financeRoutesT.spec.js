@@ -1,8 +1,8 @@
 import request from 'supertest';
-import app from '../../../app.js'; // ajuste o caminho conforme necessário
+import app from '../../../../app.js'; // ajuste o caminho conforme necessário
 
 // Mock do middleware de autenticação
-jest.mock('../../middleware/authMiddleware.js', () => ({
+jest.mock('../../../middleware/authMiddleware.js', () => ({
     authenticate: (req, res, next) => {
         req.userId = 1; // Simula um usuário autenticado
         next();
@@ -10,7 +10,7 @@ jest.mock('../../middleware/authMiddleware.js', () => ({
 }));
 
 // Mock do controller de totais financeiros
-jest.mock('../../controllers/financeController.js', () => ({
+jest.mock('../../../controllers/financeController.js', () => ({
     financeTotals: (req, res) => {
         return res.status(200).json({
             totalIncomes: 5000,

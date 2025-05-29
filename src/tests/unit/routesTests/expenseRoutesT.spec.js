@@ -1,8 +1,8 @@
 import request from 'supertest';
-import app from '../../../app.js'; // caminho para o seu app.js
+import app from '../../../../app.js'; // caminho para o seu app.js
 
 // Mock do middleware authenticate para passar direto (sem bloquear)
-jest.mock('../../middleware/authMiddleware.js', () => ({
+jest.mock('../../../middleware/authMiddleware.js', () => ({
     authenticate: (req, res, next) => {
         req.userId = 1; // simula um usuário autenticado
         next();
@@ -10,7 +10,7 @@ jest.mock('../../middleware/authMiddleware.js', () => ({
 }));
 
 // Mock dos controllers para isolar o teste da rota
-jest.mock('../../controllers/expenseController.js', () => ({
+jest.mock('../../../controllers/expenseController.js', () => ({
     createExpense: (req, res) => res.status(201).json({ message: 'Despesa criada' }),
     getAllExpenses: (req, res) => res.status(200).json([{ id: 1, description: 'Teste', value: 100 }]),
     updateExpense: (req, res) => res.status(200).json({ message: 'Despesa atualizada' }),

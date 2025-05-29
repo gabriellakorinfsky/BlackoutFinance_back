@@ -1,8 +1,8 @@
 import request from 'supertest';
-import app from '../../../app.js'; // Caminho para seu app.js
+import app from '../../../../app.js'; // Caminho para seu app.js
 
 // Mock do middleware para pular autenticação
-jest.mock('../../middleware/authMiddleware.js', () => ({
+jest.mock('../../../middleware/authMiddleware.js', () => ({
     authenticate: (req, res, next) => {
         req.userId = 1; // Simula usuário autenticado
         next();
@@ -10,7 +10,7 @@ jest.mock('../../middleware/authMiddleware.js', () => ({
 }));
 
 // Mock dos controllers de entrada de receita
-jest.mock('../../controllers/incomeController.js', () => ({
+jest.mock('../../../controllers/incomeController.js', () => ({
     createIncome: (req, res) => res.status(201).json({ message: 'Entrada criada' }),
     getAllIncomes: (req, res) => res.status(200).json([{ id: 1, description: 'Salário', value: 2500 }]),
     updateIncome: (req, res) => res.status(200).json({ message: 'Entrada atualizada' }),

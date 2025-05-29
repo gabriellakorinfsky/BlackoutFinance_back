@@ -1,9 +1,9 @@
 import request from 'supertest';
-import app from '../../../app.js'; 
-import { register, login } from '../../controllers/authController.js';
+import app from '../../../../app.js'; 
+import { register, login } from '../../../controllers/authController.js';
 
 // Mock das funções do controller
-jest.mock('../../controllers/authController.js', () => ({
+jest.mock('../../../controllers/authController.js', () => ({
   register: jest.fn((req, res) => res.status(201).json({ message: "Usuário registrado com sucesso" })),
   login: jest.fn((req, res) => res.status(200).json({ token: "fake-jwt-token" }))
 }));
