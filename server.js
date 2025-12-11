@@ -11,7 +11,7 @@ const app = express();
 
 // Middleware para permitir requisições de diferentes origens (CORS) e interpretar JSON
 app.use(cors({
-  origin: 'https://blackout-finance-ui.vercel.app/', // link do front
+  origin: 'https://blackout-finance-ui.vercel.app', // link do front
   credentials: true }));
 
 app.use(express.json());
